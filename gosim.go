@@ -28,11 +28,15 @@ var cards = [][]int{
 	{1, 0, 0, 0}, //1
 	{0, 1, 0, 0}, //2
 	{0, 0, 1, 0}, //3
+	{0, 0, 0, 1}, //3
 	{1, 1, 0, 0}, //4
 	{1, 0, 1, 0}, //5
+	{1, 0, 0, 1}, //5
 	{0, 1, 1, 0}, //6
+	{0, 1, 0, 1}, //6
 	{0, 0, 1, 1}, //7
 	{1, 1, 1, 0}, //8
+	{1, 1, 0, 1}, //8
 	{1, 0, 1, 1}, //9
 	{0, 1, 1, 1}, //10
 	{1, 1, 1, 1}, //11
@@ -41,6 +45,7 @@ var cards = [][]int{
 var compatibility [][]int
 
 func compatible(x []int, y []int) int {
+	//traditional equality
 	if (x[0] <= y[0] && x[1] <= y[1] && x[2] <= y[2] && x[3] <= y[3]) ||
 		(x[0] >= y[0] && x[1] >= y[1] && x[2] >= y[2] && x[3] >= y[3]) {
 		return 1
@@ -95,16 +100,6 @@ func genStartingDecks() []State {
 			counter++
 		}
 	}
-	return result
-}
-
-func dupstate(s State) State {
-	var result State
-	result.top = s.top
-	result.left = s.left
-	result.right = s.right
-	result.playable = make([]int, len(s.playable))
-	copy(result.playable, s.playable)
 	return result
 }
 
@@ -250,11 +245,21 @@ func doSim() {
 	var startingStates = solidify(init)
 	var probs []float64 = make([]float64, len(startingStates))
 
+	ch := make(chan float64)
 	for i := 0; i < len(startingStates); i++ {
-		probs[i] = E(startingStates[i])
-		var left = startingStates[i].left
-		var right = startingStates[i].right
-		fmt.Printf("(%v,%v) -> %.1f%%\n", left, right, 100*probs[i])
+
+		var wrap = func(c chan float64, index int) {
+			prob := E(startingStates[index])
+			var left = startingStates[index].left
+			var right = startingStates[index].right
+			fmt.Printf("(%v,%v) -> %.1f%%\n", left, right, 100*prob)
+			c <- prob
+		}
+		go wrap(ch, i)
+	}
+
+	for i := 0; i < len(startingStates); i++ {
+		probs[i] = <-ch
 	}
 
 	var average float64 = 0
