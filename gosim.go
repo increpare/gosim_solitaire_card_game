@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"math/rand"
-	//"runtime/debug"
 	"time"
 )
 
@@ -28,15 +26,11 @@ var cards = [][]int{
 	{1, 0, 0, 0}, //1
 	{0, 1, 0, 0}, //2
 	{0, 0, 1, 0}, //3
-	{0, 0, 0, 1}, //3
 	{1, 1, 0, 0}, //4
 	{1, 0, 1, 0}, //5
-	{1, 0, 0, 1}, //5
 	{0, 1, 1, 0}, //6
-	{0, 1, 0, 1}, //6
 	{0, 0, 1, 1}, //7
 	{1, 1, 1, 0}, //8
-	{1, 1, 0, 1}, //8
 	{1, 0, 1, 1}, //9
 	{0, 1, 1, 1}, //10
 	{1, 1, 1, 1}, //11
@@ -271,7 +265,6 @@ func doSim() {
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	rand.Seed(time.Now().UTC().UnixNano())
 	genCompatibilityMatrix()
 	doSim()
 }
